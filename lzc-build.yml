@@ -3,5 +3,4 @@ pkgout: ./dist
 icon: ./icon.png
 contentdir: ./content
 
-buildscript:
-  - ./scripts/build-upstream.sh
+buildscript: ./scripts/build-upstream.sh
