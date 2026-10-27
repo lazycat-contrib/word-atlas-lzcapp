@@ -1,0 +1,21 @@
+application:
+  subdomain: word-atlas
+  multi_instance: false
+  public_path:
+    - /
+  upstreams:
+    - location: /
+      backend: file:///lzcapp/pkg/content/
+
+usage: |
+  词光 Word Atlas 是一款以插画和语境为核心的雅思背词应用：7,298 个词条，
+  每个词一幅原创插画、两句原创例句和英美发音，配合 FSRS 间隔复习。
+
+  特点：
+  - 看画面理解词义，听发音建立联系，用主动回忆与间隔复习巩固记忆；
+  - 无需账号，学习进度保存在浏览器本地；
+  - 19 个话题组成词汇星图（WebGL2 渲染，不支持时自动降级）；
+  - 支持离线缓存（Service Worker）。
+
+  数据与授权：词库与插画、录音来自上游开源仓库（代码 MIT，数据 CC BY 4.0），
+  本应用为上游源码的纯静态构建，不包含任何服务端。
