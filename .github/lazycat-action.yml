@@ -12,9 +12,12 @@ update:
   allow_downgrade: false
   version_source:
     type: git
+    image: ""
 
 build:
   run_buildscript: true
+
+images: []
 
 stores:
   official:
