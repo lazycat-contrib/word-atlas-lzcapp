@@ -22,15 +22,17 @@ permissions:
   pull-requests: write
 
 jobs:
-  # The upstream repo has no release tags; track the default-branch commit.
-  # Bump package.yml to the short commit so every build is traceable to an
-  # upstream revision, then push; the push event triggers the lazycat publish.
+  # The upstream repo has no release tags, so track the default-branch commit.
+  # The store and the Action require SemVer in package.yml; every upstream
+  # change bumps the patch version and records the upstream short SHA in the
+  # version suffix metadata comment + changelog line, so each build stays
+  # traceable to an exact upstream revision.
   sync-upstream:
     if: github.event_name != 'push' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Sync upstream version (latest default-branch commit)
+      - name: Sync upstream version (default-branch commit)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -39,16 +41,22 @@ jobs:
           SHORT="${SHA::10}"
           DATE="$(gh api repos/designfuchen/word-atlas/commits/main --jq '.commit.committer.date' | cut -c1-10)"
           CURRENT="$(sed -n 's/^version: *//p' package.yml)"
-          echo "upstream=$SHORT ($DATE) current=$CURRENT"
-          if [ "$SHORT" = "$CURRENT" ]; then
+          RECORDED="$(sed -n 's/^# upstream: *//p' package.yml)"
+          echo "upstream=$SHORT ($DATE) recorded=$RECORDED current=$CURRENT"
+          if [ "$SHORT" = "$RECORDED" ]; then
             echo "no update needed"
             exit 0
           fi
-          sed -i "s/^version: .*/version: $SHORT/" package.yml
+          MAJOR="$(cut -d. -f1 <<<"$CURRENT")"
+          MINOR="$(cut -d. -f2 <<<"$CURRENT")"
+          PATCH="$(cut -d. -f3 <<<"$CURRENT")"
+          NEW="$MAJOR.$MINOR.$((PATCH + 1))"
+          sed -i "s/^version: .*/version: $NEW/" package.yml
+          sed -i "s|^# upstream: .*|# upstream: $SHORT|" package.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package.yml
-          git commit -m "chore: bump to upstream word-atlas $SHORT ($DATE)"
+          git commit -m "chore: bump to $NEW (upstream word-atlas $SHORT, $DATE)"
           git push
 
   lazycat:
