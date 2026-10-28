@@ -1,6 +1,6 @@
-# upstream: e7b4462923
+# upstream: 99c007673d
 package: community.lazycat.app.word-atlas
-version: 1.0.0
+version: 1.0.1
 name: Word Atlas
 description: "Illustrated IELTS vocabulary with 7,298 words, UK/US audio and FSRS review"
 author: designfuchen
